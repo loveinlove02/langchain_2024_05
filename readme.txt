@@ -19,3 +19,5 @@ pip install pypdf
 pip install langchainhub
 pip install langsmith
 
+pip install scikit-learn
+
