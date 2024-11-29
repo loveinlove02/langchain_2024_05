@@ -22,3 +22,5 @@ pip install langsmith
 pip install scikit-learn
 
 pip install langchain_chroma
+
+pip install beautifulsoup4
