@@ -25,3 +25,5 @@ pip install langchain_chroma
 pip install beautifulsoup4
 
 pip install langchain-google-genai
+
+pip install tabulate
