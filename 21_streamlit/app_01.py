@@ -20,7 +20,7 @@ with st.sidebar:
     
     selected_prompt = st.selectbox(
         '프롬프트를 선택하세요', 
-        ('기본모드', '블로그 타입의 게시글'), 
+        ('기본모드', '게시글'), 
         index=0
     )
 
@@ -35,7 +35,28 @@ def add_message(role, message):
     )
 
 def create_chain(prompt_type):
-    pass
+    if prompt_type=='기본모드':
+        prompt = ChatPromptTemplate(
+            [
+                ('system', '당신은 친절한 AI 어시스턴트입니다. 다음의 질문에 간결하게 답변해주세요.'), 
+                ('user', '#Qeustion:\n{question}')
+            ]
+        )
+    elif prompt_type=='게시글':
+        prompt = load_prompt('prompts/blog.yaml', encoding='utf-8')
+
+
+    llm = ChatOpenAI(
+        api_key=key, 
+        model_name='gpt-4o-mini',
+        temperature=0,
+        max_toens=2048,
+    )
+
+    output_parser = StrOutputParser()
+    chain = prompt | llm | output_parser
+    
+    return chain
 
 
 if btn:
@@ -51,7 +72,7 @@ if user_input:
 
 
     # 체인 만들기
-    # chain = .. 
+    chain = create_chain(selected_prompt)  
 
     # 체인으로 invoke해서 답변
     response = ''
