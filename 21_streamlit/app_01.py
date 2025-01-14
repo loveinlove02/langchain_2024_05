@@ -25,10 +25,14 @@ with st.sidebar:
     )
 
 def print_mmessages():
-    pass
+    for chat_message in st.session_state['messages']:
+        with st.chat_message(chat_message.role):
+           st.write(chat_message.content) 
 
 def add_message(role, message):
-    pass
+    st.session_state['messages'].append(
+        ChatMessage(role=role, content=message)
+    )
 
 def create_chain(prompt_type):
     pass
@@ -57,4 +61,4 @@ if user_input:
 
     
     add_message('user', user_input)
-    add_message('user', answer)
+    add_message('assistant', answer)
