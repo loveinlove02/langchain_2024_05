@@ -93,4 +93,26 @@ if 'chain' not in st.session_state:
 
 if user_input:
     chain = st.session_state['chain']
-    st.write(chain)
+    
+    if chain is not None:
+        response = chain.stream(
+            {'question': user_input},   
+            config={'configurable': {'session_id': session_id}}
+        )
+
+        with st.chat_message('user'):
+            st.write(user_input)
+
+        with st.chat_message('assistant'):
+            container = st.empty()
+            ai_answer = ''
+
+            for token in response:
+                ai_answer = ai_answer + token
+                container.markdown(ai_answer)
+            
+            add_message('user', user_input)
+            add_message('assistant', ai_answer)    
+
+    else:
+        warning_msg.err('오류')
