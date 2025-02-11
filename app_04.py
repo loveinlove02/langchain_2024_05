@@ -4,44 +4,19 @@ import os
 load_dotenv(verbose=True)
 key = os.getenv('OPENAI_API_KEY')
 
+from langchain_community.tools.tavily_search import TavilySearchResults
 
-from langchain_openai import ChatOpenAI
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.output_parsers import StrOutputParser
-from langchain_core.runnables import RunnableLambda
-from langchain_experimental.tools import PythonAstREPLTool
+tavily_key = os.getenv('TAVILY_API_KEY')
 
-def print_and_execute(code, debug=True):
-    python_tool = PythonAstREPLTool()
-
-    if debug==True:
-        print('코드:')
-        print(code)
-    
-    return python_tool.invoke(code)
-
-prompt = ChatPromptTemplate.from_messages(      # 파이썬 코드 작성을 지시하는 프롬프트
-    [
-        (
-            "system",
-            "You are Raymond Hetting, an expert python programmer, well versed in meta-programming and elegant, concise and short but well documented code. You follow the PEP8 style guide. "
-            "Return only the code, no intro, no explanation, no chatty, no markdown, no code block, no nothing. Just the code.",
-        ),
-        ("human", "{input}"),
-    ]
+tool = TavilySearchResults(
+    key = tavily_key,
+    max_results=2,              # 검색 결과 수
+    search_depth='advanced',    # Tavily 검색 API가 광범위한 검색
+    include_raw_content=True,   # 검색 결과의 원본 내용 포함
+    include_answer=True,        # 검색 결과를 바탕으로 생성된 답변 포함
+    include_domains=['google.com', 'naver.com']
 )
 
-llm = ChatOpenAI(
-    api_key=key,
-    model='gpt-4o-mini', 
-    temperature=0
-)
+answer = tool.invoke({'query': '대한민국 2024년 계엄령'})
 
-output_parser = StrOutputParser()
-
-chain = prompt | llm | output_parser | RunnableLambda(print_and_execute)
-
-
-answer = chain.invoke({'input': '피보나치 수열의 10항까지 출력해주세요.'})
-print(answer)
-
+answer
