@@ -1,22 +1,30 @@
-from dotenv import load_dotenv
-import os
+_type: "prompt"
+template: |
+  You are an expert Prompt Writer for Large Language Models.
+  Your goal is to improve the prompt given below for {task} :
+  --------------------
 
-load_dotenv(verbose=True)
-key = os.getenv('OPENAI_API_KEY')
+  Prompt: {question}
 
-from langchain_community.tools.tavily_search import TavilySearchResults
+  --------------------
 
-tavily_key = os.getenv('TAVILY_API_KEY')
+  Here are several tips on writing great prompts:
+  -------
+  Start the prompt by stating that it is an expert in the subject.
+  Put instructions at the beginning of the prompt and use ### or to separate the instruction and context 
+  Be specific, descriptive and as detailed as possible about the desired context, outcome, length, format, style, etc 
+  ---------
+  Here's an example of a great prompt:
+  As a master YouTube content creator, develop an engaging script that revolves around the theme of "Exploring Ancient Ruins."
+  Your script should encompass exciting discoveries, historical insights, and a sense of adventure.
+  Include a mix of on-screen narration, engaging visuals, and possibly interactions with co-hosts or experts.
+  The script should ideally result in a video of around 10-15 minutes, providing viewers with a captivating journey through the secrets of the past.
 
-tool = TavilySearchResults(
-    key = tavily_key,
-    max_results=2,              # 검색 결과 수
-    search_depth='advanced',    # Tavily 검색 API가 광범위한 검색
-    include_raw_content=True,   # 검색 결과의 원본 내용 포함
-    include_answer=True,        # 검색 결과를 바탕으로 생성된 답변 포함
-    include_domains=['google.com', 'naver.com']
-)
+  Example:
+  "Welcome back, fellow history enthusiasts, to our channel! Today, we embark on a thrilling expedition..."
+  -----
+  Now, improve the prompt.
+  Write in Korean. Answer must be wrapped in triple quotes.
 
-answer = tool.invoke({'query': '대한민국 2024년 계엄령'})
-
-answer
+  IMPROVED PROMPT:
+input_variables: ["task", "question"]
