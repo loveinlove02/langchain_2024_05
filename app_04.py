@@ -1,30 +1,25 @@
-_type: "prompt"
-template: |
-  You are an expert Prompt Writer for Large Language Models.
-  Your goal is to improve the prompt given below for {task} :
-  --------------------
+import requests
+import re
+from bs4 import BeautifulSoup
 
-  Prompt: {question}
+# url = "https://n.news.naver.com/article/011/0004451835?cds=news_media_pc"
+url = input('네이버 뉴스 주소: ')
 
-  --------------------
+response = requests.get(url)
 
-  Here are several tips on writing great prompts:
-  -------
-  Start the prompt by stating that it is an expert in the subject.
-  Put instructions at the beginning of the prompt and use ### or to separate the instruction and context 
-  Be specific, descriptive and as detailed as possible about the desired context, outcome, length, format, style, etc 
-  ---------
-  Here's an example of a great prompt:
-  As a master YouTube content creator, develop an engaging script that revolves around the theme of "Exploring Ancient Ruins."
-  Your script should encompass exciting discoveries, historical insights, and a sense of adventure.
-  Include a mix of on-screen narration, engaging visuals, and possibly interactions with co-hosts or experts.
-  The script should ideally result in a video of around 10-15 minutes, providing viewers with a captivating journey through the secrets of the past.
+if response.status_code == 200:
+    soup = BeautifulSoup(response.text, 'html.parser')
 
-  Example:
-  "Welcome back, fellow history enthusiasts, to our channel! Today, we embark on a thrilling expedition..."
-  -----
-  Now, improve the prompt.
-  Write in Korean. Answer must be wrapped in triple quotes.
+    title = soup.find('h2', id='title_area').get_text()
+    content = soup.find('div', id='contents').get_text()
 
-  IMPROVED PROMPT:
-input_variables: ["task", "question"]
+    cleaned_title = re.sub(r'\n{2, }', '\n', title)
+    cleaned_content = re.sub(r'\n{2, }', '\n', content)
+
+    print(f'제목: {cleaned_title}')
+    print('본문')
+    print('==' * 20)
+    print(cleaned_content)
+
+else:
+    print(f'HTTP 요청 실패 {response.status_code}')
