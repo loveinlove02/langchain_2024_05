@@ -69,7 +69,6 @@ def execute_tool_calls(tool_call_results):
             result = matching_tool.invoke(tool_agrs)
             print(f"[실행 도구]: {tool_name} [인자]: {tool_agrs}")
             print(f"[실행 결과]: {result}")
-
         else:
             print(f"경고: {tool_name}에 맞는 도구가 없음")
 
@@ -85,5 +84,12 @@ tools = [get_word_length, multiply_numbers, naver_news_crawl]
 
 llm_with_tools = llm.bind_tools(tools)
 chain = llm_with_tools | JsonOutputToolsParser(tools=tools)
-tool_call_result = chain.invoke("`안녕하세요` 의 길이는?")
+
+tool_call_result = chain.invoke("10 x 20 은")
+
+# tool_call_result = chain.invoke("`안녕하세요`의 길이는?")
+
+# url = "https://n.news.naver.com/article/011/0004451835?cds=news_media_pc"
+# tool_call_result = chain.invoke("다음의 url의 네이버 뉴스를 겁색해주세요:" + url)
+
 execute_tool_calls(tool_call_result)
