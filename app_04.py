@@ -1,14 +1,18 @@
 import requests
 import re
 from bs4 import BeautifulSoup
+from humanfriendly.terminal import ansi_width
 
 from langchain.agents import tool
 from langchain_openai import ChatOpenAI
 
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+
+from langchain.agents import create_tool_calling_agent
+from langchain.agents import AgentExecutor
+
 from dotenv import load_dotenv
 import os
-
-from langchain_core.output_parsers.openai_tools import JsonOutputToolsParser
 
 load_dotenv(verbose=True)
 key = os.getenv('OPENAI_API_KEY')
@@ -16,13 +20,11 @@ key = os.getenv('OPENAI_API_KEY')
 @tool
 def get_word_length(word: str) -> int:
     """Returns the length of a word"""
-
     return len(word)
 
 @tool()
 def multiply_numbers(a: int, b: int) -> int:
     """Multiply two numbers"""
-
     return a * b
 
 @tool
@@ -44,34 +46,17 @@ def naver_news_crawl(news_url: str) -> str:
     else:
         return f'HTTP 요청 실패 {response.status_code}'
 
- # [{'args': {'word': '안녕하세요'}, 'type': 'get_word_length'}]
-def execute_tool_calls(tool_call_results):
-    """
-    도구 호출 결과를 실행하는 함수
-    :param tool_call_result: 도구 호출 결과 리스트
-    :param tools: 사용 가능한 도구 리스트
-    """
-    print(f"tool_call_result: {tool_call_results}")
-    print('=' * 100)
 
-    for tool_call_result in tool_call_results:
-        tool_name = tool_call_result['type']    # 도구(함수)의 이름
-        tool_agrs = tool_call_result['args']    # 도구(함수)에 전달되는 인자
-
-        matching_tool = None
-
-        for tool in tools:      # tools 리스트 반복하면 실행할 실제 도구 찾을
-            if tool.name == tool_name:
-                matching_tool = tool
-                break
-
-        if matching_tool:      # 실행 도구를 찾았으면
-            result = matching_tool.invoke(tool_agrs)
-            print(f"[실행 도구]: {tool_name} [인자]: {tool_agrs}")
-            print(f"[실행 결과]: {result}")
-        else:
-            print(f"경고: {tool_name}에 맞는 도구가 없음")
-
+prompt = ChatPromptTemplate.from_messages(
+    [
+        (
+            "system",
+            "You are very powerful assistant, but don't know current events."),
+        ("user", "{input}"),
+        # 에이전트가 검색하는 과정에서 중간 단계를 끄적이는 기능으로..
+        MessagesPlaceholder(variable_name="agent_scratchpad")
+    ]
+)
 
 llm = ChatOpenAI(
     api_key=key,
@@ -82,14 +67,17 @@ llm = ChatOpenAI(
 # 도구 목록 리스트
 tools = [get_word_length, multiply_numbers, naver_news_crawl]
 
-llm_with_tools = llm.bind_tools(tools)
-chain = llm_with_tools | JsonOutputToolsParser(tools=tools)
+# 에이전트
+agent = create_tool_calling_agent(llm, tools, prompt)
 
-tool_call_result = chain.invoke("10 x 20 은")
+# 에이전트 실행기
+agent_executor = AgentExecutor(
+    agent=agent,        # 에이전트
+    tools=tools,        # 내가 만든 도구들 (리스트)
+    verbose=True,       # 중간 단계들의 메시지
+    handle_parsing_errors=True
+)
 
-# tool_call_result = chain.invoke("`안녕하세요`의 길이는?")
-
-# url = "https://n.news.naver.com/article/011/0004451835?cds=news_media_pc"
-# tool_call_result = chain.invoke("다음의 url의 네이버 뉴스를 겁색해주세요:" + url)
-
-execute_tool_calls(tool_call_result)
+answer = agent_executor.invoke({"input": "`안녕하세요` 의 길이는?"})
+print(answer)
+print(answer['output'])
