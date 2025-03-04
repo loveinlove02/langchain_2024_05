@@ -69,3 +69,28 @@ prompt = ChatPromptTemplate.from_messages(
 
 
 tools = [search_keyword, python_repl_tool]
+
+llm = ChatOpenAI(
+    api_key=key,
+    model='gpt-4o-mini',
+    temperature=0
+)
+
+# 에이전트
+agent = create_tool_calling_agent(llm, tools, prompt)
+
+# 에이전트 실행기
+agent_executor = AgentExecutor(
+    agent=agent,        # 각 단계에서 계획을 생성하고 행동을 결정하는 agent
+    tools=tools,        # agent 가 사용할 수 있는 도구 목록
+    verbose=True,       # 중간 단계에서 실행되는 결과를 보고...
+    max_iterations=10,  # 최대 10번까지 반복
+    max_execution_time=10,
+    handle_parsing_errors=True
+)
+
+result = agent_executor.stream({'input': '10 + 20을 출력하는 파이썬 코드를 작성해줘'})
+
+for step in result:
+    print(step)
+    print('=='*50)
