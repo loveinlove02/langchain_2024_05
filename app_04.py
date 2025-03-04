@@ -20,10 +20,12 @@ key = os.getenv('OPENAI_API_KEY')
 def search_keyword(query: str) -> List[Dict[str, str]]:
     """Look up news by keyword"""
 
+    print(f"----------------------------")
+    print(f"search_keyword 실행 시작")
     print(f"검색어: {query}")
     news_tool = GoogleNews()
-
-    return news_tool.search_by_keyword(query, k=2)
+    print(f"----------------------------")
+    return news_tool.search_by_keyword(query, k=1)
 
 '''
 answer = search_keyword.invoke({'query': '트럼프'})
@@ -83,15 +85,34 @@ agent = create_tool_calling_agent(llm, tools, prompt)
 agent_executor = AgentExecutor(
     agent=agent,        # 각 단계에서 계획을 생성하고 행동을 결정하는 agent
     tools=tools,        # agent 가 사용할 수 있는 도구 목록
-    verbose=True,       # 중간 단계에서 실행되는 결과를 보고...
+    verbose=False,       # 중간 단계에서 실행되는 결과를 보고...
     max_iterations=10,  # 최대 10번까지 반복
     max_execution_time=10,
     handle_parsing_errors=True
 )
 
-result = agent_executor.stream({'input': '트럼프에 대해서 뉴스검색 해줘'})
+result = agent_executor.stream({'input': '10 + 20을 출력하는 파이썬 코드'})
 
 for step in result:
-    print(f"step:\n")
-    print(step)
-    print('=='*50)
+    if 'actions' in step:
+        print('==' * 50)
+        print(f'[actions]:')
+        print(step['actions'])
+        print('==' * 50)
+    elif 'steps' in step:
+        print('==' * 50)
+        print(f'[steps]:')
+        print(step['steps'])
+        print('==' * 50)
+    elif 'output' in step:
+        print('==' * 50)
+        print(f'[output]:')
+        print(step['output'])
+        print('==' * 50)
+
+# i = 1
+# for step in result:
+#     print(f"실행 [{i}] :\n")
+#     print(step)
+#     print('=='*50)
+#     i=i+1
