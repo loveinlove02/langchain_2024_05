@@ -38,4 +38,34 @@ def python_repl_tool(
     you should print it out with `print(...)`. This is visible to the user."""
 
     result = ""
-    pass
+
+    try:
+        result = PythonREPL().run(code)
+    except BaseException as e:
+        print(f"코드 실행 실패 : {repr(e)}")
+    finally:
+        return  result
+
+# 테스트
+'''
+answer = python_repl_tool.invoke({'code': 'print(1+2)'})
+print(answer)
+'''
+
+# 에이전트 프롬프트
+prompt = ChatPromptTemplate.from_messages(
+    [
+        (
+            "system",
+            "You are a helpful assistant."
+            "Make sure to use the `search_keyword` tool for searching keyword related news."
+            "Be sure to use the `python_repl_tool` tool when make python code."
+        ),
+        ('placeholder', '{chat_history}'),       # 대화 내용들 집어 넣을 공간
+        ('human', '{input}'),
+        ('placeholder', '{agent_scratchpad}')
+    ]
+)
+
+
+tools = [search_keyword, python_repl_tool]
