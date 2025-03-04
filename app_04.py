@@ -89,8 +89,9 @@ agent_executor = AgentExecutor(
     handle_parsing_errors=True
 )
 
-result = agent_executor.stream({'input': '10 + 20을 출력하는 파이썬 코드를 작성해줘'})
+result = agent_executor.stream({'input': '트럼프에 대해서 뉴스검색 해줘'})
 
 for step in result:
+    print(f"step:\n")
     print(step)
     print('=='*50)
