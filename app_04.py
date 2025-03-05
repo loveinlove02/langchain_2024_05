@@ -70,17 +70,18 @@ agent = create_tool_calling_agent(llm, tools, prompt)
 agent_executor = AgentExecutor(
     agent=agent,
     tools=tools,
-    verbose=True,
+    verbose=False,
     max_iterations=10,
     max_execution_time=10,
     handle_parsing_errors=True
 )
 
-result = agent_executor.stream({'input': '선관위'})
+result = agent_executor.stream({'input': '피보나치 수열 5번째 항까지 출력하는 파이썬 코드'})
 
 i = 1
 for step in result:
     print('============================================================')
     print(f'[{i}] step')
     print(step)
+    i=i+1
     print('============================================================')
