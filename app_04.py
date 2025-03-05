@@ -56,3 +56,31 @@ prompt = ChatPromptTemplate.from_messages(
         ('placeholder', '{agent_scratchpad}')
     ]
 )
+
+llm = ChatOpenAI(
+    api_key=key,
+    model='gpt-4o-mini',
+    temperature=0
+)
+
+# tools 도구 리스트, prompt, llm 을 가지고 에이전트를 만들기
+agent = create_tool_calling_agent(llm, tools, prompt)
+
+# 에이전트 실행기
+agent_executor = AgentExecutor(
+    agent=agent,
+    tools=tools,
+    verbose=True,
+    max_iterations=10,
+    max_execution_time=10,
+    handle_parsing_errors=True
+)
+
+result = agent_executor.stream({'input': '선관위'})
+
+i = 1
+for step in result:
+    print('============================================================')
+    print(f'[{i}] step')
+    print(step)
+    print('============================================================')
