@@ -3,6 +3,11 @@ from typing import List, Dict, Annotated
 from langchain_teddynote.tools import GoogleNews
 from langchain_experimental.utilities import PythonREPL
 
+from langchain_openai import ChatOpenAI
+from langchain_core.prompts import ChatPromptTemplate
+from langchain.agents import create_tool_calling_agent
+from langchain.agents import AgentExecutor
+
 from dotenv import load_dotenv
 import os
 
@@ -34,10 +39,20 @@ def python_repl_tool(
     finally:
         return  result
 
-a = """
-for i in range(1, 6, 1):
-    print(i)
-"""
-answer = python_repl_tool.invoke({'code' : a})
-print(answer)
 
+tools = [search_keyword, python_repl_tool]
+
+# 프롬 프트
+prompt = ChatPromptTemplate.from_messages(
+    [
+        (
+            'system',
+            'You are a helpful assistant. '
+            'Make sure to use the `search_keyword` tool for searching keyword related news.'
+            'Make sure to use the `python_repl_tool` tool when make python code.'
+        ),
+        ('placeholder', '{chat_history}'),
+        ('human', '{input}'),
+        ('placeholder', '{agent_scratchpad}')
+    ]
+)
