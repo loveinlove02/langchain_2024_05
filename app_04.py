@@ -27,7 +27,9 @@ llm = ChatOpenAI(
 
 chain = prompt | llm
 
-user_input = '학교 마치고 교문에서 만나자. 만나서 떡볶이 먹으러 같이 가자.'
+user_input = """Let\'s meet at the school gate after class. 
+We can go eat 떡볶이 together
+"""
 response = chain.invoke({'question': user_input})
-print(response)
+print(response.content)
 
