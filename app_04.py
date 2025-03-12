@@ -20,4 +20,25 @@ parser_kor = PydanticOutputParser(pydantic_object=ConverSationSummary_KOR)
 prompt = load_prompt('./prompts/prompt_kor_to_eng.yaml', encoding='utf-8')
 prompt = prompt.partial(format=parser_kor.get_format_instructions())
 
-print(prompt)
+llm = ChatOpenAI(
+    api_key=key,
+    model='gpt-4o-mini',
+    temperature=0
+)
+
+chain = prompt | llm
+
+user_input = input('질문: ')
+
+result = chain.invoke({'question': user_input})
+# print(result.content)
+answer = parser_kor.parse(result.content)
+
+print('1 원문: ')
+print(answer.original_korean_sentence)
+
+print('2. 번역: ')
+print(answer.translated_english_sentence)
+
+print('3. 참고 사항: ')
+print(answer.context_precautions_of_translation)
