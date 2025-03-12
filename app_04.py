@@ -10,5 +10,10 @@ import os
 load_dotenv(verbose=True)
 key = os.getenv('OPENAI_API_KEY')
 
+class ConverSationSummary_KOR(BaseModel):
+    original_korean_sentence: str = Field(description='원문 한국어 문장')
+    translated_english_sentence: str = Field(description='번역된 영어 문장')
+    context_precautions_of_translation: str = Field(description='번역의 맥락이나 주의사항')
+
 prompt = load_prompt('./prompts/prompt_kor_to_eng.yaml', encoding='utf-8')
 print(prompt)
