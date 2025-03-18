@@ -29,6 +29,3 @@ def search_keyword(query: str) -> List[Dict[str, str]]:
 
     return answer
 
-# 테스트
-result = search_keyword.invoke({'query': '봄을 알리는'})
-print(result)
