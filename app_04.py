@@ -29,3 +29,25 @@ def search_keyword(query: str) -> List[Dict[str, str]]:
 
     return answer
 
+
+# print(f'도구 이름: {search_keyword.name}')
+# print(f'도구 설명: {search_keyword.description}')
+
+# 2개의 도구를 리스트에 넣는다
+tools = [search_keyword, add_function]
+
+# Agent prompt
+prompt = ChatPromptTemplate.from_messages(
+    [
+        (
+            "system",
+            "You are a helpful assistant. "             
+            "Make sure to use the `search_news` tool for searching keyword related news."
+        ),
+        ("placeholder", "{chat_history}"),          # 이전 대화 내용을 넣을 곳을 잡아둔다.
+        ("human", "{input}"),                       # 사용자 입력
+
+        # 에이전트가 검색하는 과정들이나 내용 등을 끄적이는 메모장 같은 공간을 플레이스 홀더로 만들어준다
+        ("placeholder", "{agent_scratchpad}"),
+    ]
+)
