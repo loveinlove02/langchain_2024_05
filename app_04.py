@@ -46,8 +46,29 @@ prompt = ChatPromptTemplate.from_messages(
         ),
         ("placeholder", "{chat_history}"),          # 이전 대화 내용을 넣을 곳을 잡아둔다.
         ("human", "{input}"),                       # 사용자 입력
-
-        # 에이전트가 검색하는 과정들이나 내용 등을 끄적이는 메모장 같은 공간을 플레이스 홀더로 만들어준다
         ("placeholder", "{agent_scratchpad}"),
     ]
 )
+
+# llm 만들기
+llm = ChatOpenAI(
+    api_key=key,
+    model='gpt-4o-mini',
+    temperature=0
+)
+
+# 에이전트 생성 : llm + 도구들 + 프롬프트
+agent = create_tool_calling_agent(llm, tools, prompt)
+
+# 에이전트 실행기 생성
+agent_executor = AgentExecutor(
+    agent=agent,        # 각 단계에서 계획을 생성하고 행동을 결정하는 에이전트
+    tools=tools,        # 에이전트가 사용할 도구 리스트(함수)
+    verbose=False,      # 중단 단계 출력
+    max_iterations=10,  # 최대 반복 횟수
+    max_execution_time=10,  # 실행되는데 소요되는 최대 시간
+    handle_parsing_errors=True
+)
+
+answer = agent_executor.invoke({'input': '10+20의 결과는?'})
+print(answer)
