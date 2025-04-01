@@ -3,7 +3,6 @@ from typing import Annotated, TypedDict
 from langgraph.graph.message import add_messages
 from langchain_openai import ChatOpenAI
 
-from app_02 import answer
 from graph_image.draw_grpah_image_png import save_graph_image
 
 
@@ -32,5 +31,13 @@ def chatbot(state: State):
 
     return {'messages': [answer]}
 
-# state1 = State(messages=[])
-# print(state1)
+
+from langchain_core.messages import HumanMessage
+
+state1 = State(messages=[])
+human = HumanMessage(content='대구 교보 문고에 대해서 알려줘', id='1')
+state1['messages'] = add_messages(state1['messages'], human)
+print(state1)
+
+a = chatbot(state1)
+print(a)
