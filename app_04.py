@@ -31,13 +31,27 @@ def chatbot(state: State):
 
     return {'messages': [answer]}
 
+# 그래프 만들기
+graph = StateGraph(State)
+graph.add_node('chatbot', chatbot)          # 노드(함수)를 만든다
+graph.add_edge(START, 'chatbot')     # START -> chatbot
+graph.add_edge('chatbot', END)       # chatbot -> END
 
-from langchain_core.messages import HumanMessage
+app = graph.compile()
 
-state1 = State(messages=[])
-human = HumanMessage(content='대구 교보 문고에 대해서 알려줘', id='1')
-state1['messages'] = add_messages(state1['messages'], human)
-print(state1)
+save_graph_image(app, filename="state_graph.png")
 
-a = chatbot(state1)
-print(a)
+
+
+
+# from langchain_core.messages import HumanMessage
+#
+# state1 = State(messages=[])
+# human = HumanMessage(content='대구 교보 문고에 대해서 알려줘', id='1')
+# state1['messages'] = add_messages(state1['messages'], human)
+# print(state1)
+#
+# a = chatbot(state1)
+#
+# state1['messages'] = add_messages(state1['messages'], a['messages'])
+# print(state1)
