@@ -1,57 +1,25 @@
 from langgraph.graph import StateGraph, START, END
 from typing import Annotated, TypedDict
-from langgraph.graph.message import add_messages
-from langchain_openai import ChatOpenAI
-
 from graph_image.draw_grpah_image_png import save_graph_image
 
-
-from dotenv import load_dotenv
-import os
-
-load_dotenv(verbose=True)
-key = os.getenv('OPENAI_API_KEY')
-
 class State(TypedDict):
-    messages: Annotated[list, add_messages]
+    counter: int
 
-# LLM
-llm = ChatOpenAI(api_key=key,model='gpt-4o-mini')
+# counter를 증가시키는 노드 함수
+def increment(state: State):
+    answer = state['counter'] + 1
+    return {'counter': answer}
 
-# -------------------------------
-# chatbot 함수 노드 : state 를 받아서 LLM 으로 실행
-# -------------------------------
-def chatbot(state: State):
-    print('=====================')
-    print('chatbot() 함수 시작')
-    print(f"state['messages'] : {state['messages']}")
-    answer = llm.invoke(state['messages'])
-    print('chatbot() 함수 끝')
-    print('=====================')
 
-    return {'messages': [answer]}
-
-# 그래프 만들기
 graph = StateGraph(State)
-graph.add_node('chatbot', chatbot)          # 노드(함수)를 만든다
-graph.add_edge(START, 'chatbot')     # START -> chatbot
-graph.add_edge('chatbot', END)       # chatbot -> END
+graph.add_node('increment', increment)
+
+graph.add_edge(START, 'increment')
+graph.add_edge('increment', END)
 
 app = graph.compile()
 
-save_graph_image(app, filename="state_graph.png")
+state1 = State(counter=0)
+result = app.invoke(state1)
+print(result)
 
-
-
-
-# from langchain_core.messages import HumanMessage
-#
-# state1 = State(messages=[])
-# human = HumanMessage(content='대구 교보 문고에 대해서 알려줘', id='1')
-# state1['messages'] = add_messages(state1['messages'], human)
-# print(state1)
-#
-# a = chatbot(state1)
-#
-# state1['messages'] = add_messages(state1['messages'], a['messages'])
-# print(state1)
