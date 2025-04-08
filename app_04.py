@@ -44,7 +44,8 @@ prompt = ChatPromptTemplate.from_messages(
         (
             'system',
             'You are a helpful assistant. '
-            'Make sure to use the `search_keyword` tool for searching keyword related news'
+            'Make sure to use the `search_keyword` tool for searching keyword related news. '
+            'Use the `python_repl_tool` when executing Python code'
         ),
         ('placeholder', '{chat_history}'),
         ('human', '{input}'),
@@ -72,3 +73,6 @@ agent_executor = AgentExecutor(
 
 answer = agent_executor.invoke({'input': '선거'})
 print(answer)
+
+answer2 = agent_executor.invoke({'input': '1~100까지 합을 출력하는 파이썬 코드 작성 및 실행'})
+print(answer2)
