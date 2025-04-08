@@ -1,25 +1,17 @@
-from langgraph.graph import StateGraph, START, END
-from typing import Annotated, TypedDict
-from graph_image.draw_grpah_image_png import save_graph_image
+from langchain.agents import tool
+from typing import List, Dict, Annotated
+from langchain_teddynote.tools import GoogleNews
+from langchain_experimental.utilities import PythonREPL
 
-class State(TypedDict):
-    counter: int
+from langchain_openai import ChatOpenAI
+from langchain_core.prompts import ChatPromptTemplate
+from langchain.agents import create_tool_calling_agent
+from langchain.agents import AgentExecutor
 
-# counter를 증가시키는 노드 함수
-def increment(state: State):
-    answer = state['counter'] + 1
-    return {'counter': answer}
+from dotenv import load_dotenv
+import os
 
+load_dotenv(verbose=True)
+key = os.getenv('OPENAI_API_KEY')
 
-graph = StateGraph(State)
-graph.add_node('increment', increment)
-
-graph.add_edge(START, 'increment')
-graph.add_edge('increment', END)
-
-app = graph.compile()
-
-state1 = State(counter=0)
-result = app.invoke(state1)
-print(result)
-
+# muz.so/랭체인스터디5
