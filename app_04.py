@@ -41,3 +41,20 @@ def python_repl_tool(
         print(f"Failed to execute. Error: {repr(e)}")
     finally:
         return result
+
+
+# 프롬프트는 에이전트에게 모델이 수행할 작업을 설명하는 텍스트를 제공합니다. (도구의 이름과 역할을 입력)
+prompt = ChatPromptTemplate.from_messages(
+    [
+        (                                           
+            "system",
+            "You are a helpful assistant. "             
+            "Make sure to use the `search_news` tool for searching keyword related news."
+        ),
+        ("placeholder", "{chat_history}"),          # 이전 대화 내용을 넣을 곳을 잡아둔다.
+        ("human", "{input}"),                       # 사용자 입력
+
+        # 에이전트가 검색하는 과정들이나 내용 등을 끄적이는 메모장 같은 공간을 플레이스 홀더로 만들어준다
+        ("placeholder", "{agent_scratchpad}"),       
+    ]
+)
