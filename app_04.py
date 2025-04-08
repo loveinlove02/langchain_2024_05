@@ -15,3 +15,12 @@ load_dotenv(verbose=True)
 key = os.getenv('OPENAI_API_KEY')
 
 # muz.so/랭체인스터디5
+
+@tool
+def search_keyword(query: str) -> List[Dict[str, str]]:
+    """Look up news by keyword"""
+    news_tool = GoogleNews()
+    return news_tool.search_by_keyword(query, k=2)
+
+anwer = search_keyword.invoke({'query': '6월 선거'})
+print(anwer)
