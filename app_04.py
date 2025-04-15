@@ -70,5 +70,28 @@ agent_executor = AgentExecutor(
     verbose=False,              # 중간 단계 출력
     max_iterations=10,          # 최대 10번까지만 반복
     max_execution_time=10,      # 실행되는데 소요되는 최대 시간
-    handle_parsing_errors=True  #
+    handle_parsing_errors=True
 )
+
+# result = agent_executor.stream({'input' :'10+20을 출력하는 파이썬 코드를 작성.'})
+#
+# for step in result:
+#     print('=='*50)
+#     print(step)
+#     print()
+
+
+result = agent_executor.stream({'input' :'대구 교보문고에 대해서 검색.'})
+
+for step in result:
+    print('=='*50)
+    print()
+
+    if 'actions' in step:
+        print('===== [actions] 시작 =====')
+        for action in step['actions']:
+            print(action)
+            print(action.tool)
+            print(action.tool_input)
+        print('===== [actions] 끝  =====')
+        print()
