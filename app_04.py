@@ -7,6 +7,7 @@ from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain.agents import create_tool_calling_agent
 from langchain.agents import AgentExecutor
+from langchain_teddynote.messages import AgentStreamParser
 
 from dotenv import load_dotenv
 import os
@@ -73,38 +74,11 @@ agent_executor = AgentExecutor(
     handle_parsing_errors=True
 )
 
-# result = agent_executor.stream({'input' :'10+20을 출력하는 파이썬 코드를 작성.'})
-#
-# for step in result:
-#     print('=='*50)
-#     print(step)
-#     print()
+# 5. AgentStreamParser
+agent_stream_parser = AgentStreamParser()
 
-
+# 실행
 result = agent_executor.stream({'input' :'대구 교보문고에 대해서 검색.'})
 
 for step in result:
-    print('=='*50)
-    print()
-
-    if 'actions' in step:
-        print('===== [actions] 시작 =====')
-        for action in step['actions']:
-            # print(action)
-            print(action.tool)
-            print(action.tool_input)
-        print('===== [actions] 끝  =====')
-        print()
-    elif 'steps' in step:
-        print('===== [steps] 시작 =====')
-        for agent_step in step['steps']:
-            # print(agent_step)
-            # print(agent_step.action)
-            # print(agent_step.action.tool_input)
-            #
-
-            if len(agent_step.observation)>0:
-                # print(agent_step.observation)
-                for observation in agent_step.observation:
-                    print(observation)
-        print('===== [steps]  끝  =====')
+    agent_stream_parser.process_agent_steps(step)
