@@ -65,14 +65,10 @@ agent = create_tool_calling_agent(llm, tools, prompt)
 
 # 4.에이전트 실행기(AgentExecutor)
 agent_executor = AgentExecutor(
-    agent=agent,
-    tools=tools,
-    verbose=True,
-    handle_parsing_errors=True
+    agent=agent,                # 각 단계에서 게획을 생성하고 행동을 결정하는 에이전트
+    tools=tools,                # 에이전트가 사용할 수 있는 도구 목록
+    verbose=False,              # 중간 단계 출력
+    max_iterations=10,          # 최대 10번까지만 반복
+    max_execution_time=10,      # 실행되는데 소요되는 최대 시간
+    handle_parsing_errors=True  #
 )
-
-answer = agent_executor.invoke({'input': '선거'})
-print(answer)
-
-answer2 = agent_executor.invoke({'input': '1~100까지 합을 출력하는 파이썬 코드 작성 및 실행'})
-print(answer2)
