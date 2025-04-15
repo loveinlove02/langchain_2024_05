@@ -90,8 +90,21 @@ for step in result:
     if 'actions' in step:
         print('===== [actions] 시작 =====')
         for action in step['actions']:
-            print(action)
+            # print(action)
             print(action.tool)
             print(action.tool_input)
         print('===== [actions] 끝  =====')
         print()
+    elif 'steps' in step:
+        print('===== [steps] 시작 =====')
+        for agent_step in step['steps']:
+            # print(agent_step)
+            # print(agent_step.action)
+            # print(agent_step.action.tool_input)
+            #
+
+            if len(agent_step.observation)>0:
+                # print(agent_step.observation)
+                for observation in agent_step.observation:
+                    print(observation)
+        print('===== [steps]  끝  =====')
