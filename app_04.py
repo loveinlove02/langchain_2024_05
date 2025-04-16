@@ -1,84 +1,53 @@
-from langchain.agents import tool
-from typing import List, Dict, Annotated
-from langchain_teddynote.tools import GoogleNews
-from langchain_experimental.utilities import PythonREPL
-
-from langchain_openai import ChatOpenAI
-from langchain_core.prompts import ChatPromptTemplate
-from langchain.agents import create_tool_calling_agent
-from langchain.agents import AgentExecutor
-from langchain_teddynote.messages import AgentStreamParser
-
 from dotenv import load_dotenv
 import os
+import base64
+from io import BytesIO
+from IPython.display import Image, display
+from datetime import datetime
+from langchain_google_genai import ChatGoogleGenerativeAI
 
 load_dotenv(verbose=True)
-key = os.getenv('OPENAI_API_KEY')
+google_key = os.getenv('GOOGLE_API_KEY')
 
-# muz.so/랭체인스터디5
 
-@tool
-def search_keyword(query: str) -> List[Dict[str, str]]:
-    """Look up news by keyword"""
-    news_tool = GoogleNews()
-    return news_tool.search_by_keyword(query, k=2)
-
-@tool
-def python_repl_tool(code: Annotated[str, "The python code to execute to generate your chart."]):
-    """Use this to execute python code. If you want to see the output of a value,
-       you should print it out with `print(...)`. This is visible to the user."""
-
-    result = ""
-
-    try:
-        result = PythonREPL().run(code)
-    except BaseException as e:
-        print(f"오류: {repr(e)}")
-    finally:
-        return result
-
-tools = [search_keyword, python_repl_tool]
-
-# 1. 에이전트 프롬프트
-prompt = ChatPromptTemplate.from_messages(
-    [
-        (
-            'system',
-            'You are a helpful assistant. '
-            'Make sure to use the `search_keyword` tool for searching keyword related news. '
-            'Use the `python_repl_tool` when executing Python code'
-        ),
-        ('placeholder', '{chat_history}'),
-        ('human', '{input}'),
-        ('placeholder', '{agent_scratchpad}')
-    ]
+# Gemini 2.0 Flash Experimental 이미지 생성 모델 사용
+llm = ChatGoogleGenerativeAI(
+    api_key=google_key,
+    model="models/gemini-2.0-flash-exp-image-generation"
 )
 
-# 2. LLM
-llm = ChatOpenAI(
-    api_key=key,
-    model='gpt-4o-mini',
-    temperature=0
+# 생성할 이미지에 대한 프롬프트 작성
+message = {
+    "role": "user",
+    "content": "A Bengal cat with golden and brown fur is cooking ramen on a stove, standing on two legs like a human. The cat is wearing a small apron and holding a wooden spoon, steam rising from the pot. The kitchen is cozy and warm, illustrated in a Studio Ghibli or whimsical anime style."
+}
+
+# 이미지와 텍스트 모두 응답받도록 설정
+response = llm.invoke(
+    [message],
+    generation_config=dict(response_modalities=["TEXT", "IMAGE"])
 )
 
-# 3.에이전트 생성
-agent = create_tool_calling_agent(llm, tools, prompt)
+# 이미지 데이터 추출 (리스트에서 이미지 URL 찾기)
+image_url = None
+for content_part in response.content:
+    if "image_url" in content_part:
+        image_url = content_part["image_url"]["url"]
+        break
 
-# 4.에이전트 실행기(AgentExecutor)
-agent_executor = AgentExecutor(
-    agent=agent,                # 각 단계에서 게획을 생성하고 행동을 결정하는 에이전트
-    tools=tools,                # 에이전트가 사용할 수 있는 도구 목록
-    verbose=False,              # 중간 단계 출력
-    max_iterations=10,          # 최대 10번까지만 반복
-    max_execution_time=10,      # 실행되는데 소요되는 최대 시간
-    handle_parsing_errors=True
-)
 
-# 5. AgentStreamParser
-agent_stream_parser = AgentStreamParser()
+if image_url:
+    image_base64 = image_url.split(",")[-1]
+    image_data = base64.b64decode(image_base64)
+    display(Image(data=image_data, width=300))
 
-# 실행
-result = agent_executor.stream({'input' :'대구 교보문고에 대해서 검색.'})
+    # 현재 시, 분, 초를 이용해 파일명 생성
+    now = datetime.now()
+    filename = f"generated_image_{now.strftime('%H%M%S')}.png"  # 예: generated_image_153045.png
 
-for step in result:
-    agent_stream_parser.process_agent_steps(step)
+    # 파일로 저장
+    with open(filename, "wb") as f:
+        f.write(image_data)
+    print("이미지가 ", filename, "로 저장되었습니다.")
+else:
+    print("이미지를 찾을 수 없습니다.")
