@@ -42,3 +42,18 @@ def python_repl_tool(
         print(f"Failed to execute. Error: {repr(e)}")
     finally:
         return result
+
+
+prompt = ChatPromptTemplate.from_messages(
+    [
+        (
+            'system',
+            'You are a helpful assistant. '
+            'Make sure to use `search_news` tool for searching keyword related news.'
+            'Be sure to use `python_repl_tool` tool when make python code.'
+        ),
+        ('placeholder', '{chat_history}'),
+        ('human', '{input}'),
+        ('placeholder', '{agent_scratchpad}')
+    ]
+)
