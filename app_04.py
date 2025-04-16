@@ -43,7 +43,6 @@ def python_repl_tool(
     finally:
         return result
 
-
 prompt = ChatPromptTemplate.from_messages(
     [
         (
@@ -56,4 +55,22 @@ prompt = ChatPromptTemplate.from_messages(
         ('human', '{input}'),
         ('placeholder', '{agent_scratchpad}')
     ]
+)
+
+tools = [search_keyword, python_repl_tool]
+
+llm = ChatOpenAI(
+    api_key=key,
+    model='gpt-4o-mini'
+)
+
+agent = create_tool_calling_agent(llm, tools, prompt)
+
+agent_executor = AgentExecutor(
+    agent=agent,
+    tools=tools,
+    verbose=False,
+    max_iterations=10,
+    max_execution_time=10,
+    handle_parsing_errors=True
 )
