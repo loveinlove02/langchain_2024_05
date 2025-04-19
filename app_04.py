@@ -1,76 +1,32 @@
-from langchain.agents import tool
-from typing import List, Dict, Annotated
-
-from langchain_teddynote.tools import GoogleNews
-from langchain_experimental.utilities import PythonREPL
-
-
-from langchain_openai import ChatOpenAI
-from langchain_core.prompts import ChatPromptTemplate
-
-from langchain.agents import create_tool_calling_agent
-from langchain.agents import AgentExecutor
+from langchain_community.utilities.dalle_image_generator import DallEAPIWrapper
+from PIL import Image
+from io import BytesIO
+from datetime import datetime
+import requests
 
 from dotenv import load_dotenv
 import os
 
-load_dotenv(verbose=True)
+load_dotenv()
 key = os.getenv('OPENAI_API_KEY')
 
-@tool
-def search_keyword(query: str) -> List[Dict[str, str]]:
-    """Look up news by keyword"""
+prompt = '`트랄랄레로 트랄랄라`를 지브리풍으로 생성해주세요.'
 
-    print(f'검색어: {query}')
-    news_tool = GoogleNews()
-
-    return news_tool.search_by_keyword(query, k=1)
-
-
-@tool
-def python_repl_tool(
-        code: Annotated[str, "The python code to execute to generate your chart."],
-):
-    """Use this to execute python code. If you want to see the output of a value,
-    you should print it out with `print(...)`. This is visible to the user."""
-
-    result = ""
-
-    try:
-        result = PythonREPL().run(code)
-    except BaseException as e:
-        print(f"Failed to execute. Error: {repr(e)}")
-    finally:
-        return result
-
-prompt = ChatPromptTemplate.from_messages(
-    [
-        (
-            'system',
-            'You are a helpful assistant. '
-            'Make sure to use `search_news` tool for searching keyword related news.'
-            'Be sure to use `python_repl_tool` tool when make python code.'
-        ),
-        ('placeholder', '{chat_history}'),
-        ('human', '{input}'),
-        ('placeholder', '{agent_scratchpad}')
-    ]
-)
-
-tools = [search_keyword, python_repl_tool]
-
-llm = ChatOpenAI(
+dalle = DallEAPIWrapper(
     api_key=key,
-    model='gpt-4o-mini'
+    model='dall-e-3',
+    size='1024x1024',
+    quality='standard',
+    n=1
 )
 
-agent = create_tool_calling_agent(llm, tools, prompt)
+print('생성 시작')
 
-agent_executor = AgentExecutor(
-    agent=agent,
-    tools=tools,
-    verbose=False,
-    max_iterations=10,
-    max_execution_time=10,
-    handle_parsing_errors=True
-)
+image_url = dalle.run(prompt)
+response = requests.get(image_url)
+image = Image.open(BytesIO(response.content))
+# file_name = datetime.now().strftime('%Y%m%d_%H%M%S') + '.png'
+image.save('b.png')
+
+
+
