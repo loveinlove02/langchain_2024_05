@@ -1,32 +1,23 @@
-from langchain_community.utilities.dalle_image_generator import DallEAPIWrapper
-from PIL import Image
-from io import BytesIO
-from datetime import datetime
-import requests
-
+from langchain_community.tools.tavily_search import TavilySearchResults
 from dotenv import load_dotenv
 import os
 
-load_dotenv()
+load_dotenv(verbose=True)
 key = os.getenv('OPENAI_API_KEY')
+tavily_key = os.getenv('TAVILY_API_KEY')
 
-prompt = '`트랄랄레로 트랄랄라`를 지브리풍으로 생성해주세요.'
-
-dalle = DallEAPIWrapper(
-    api_key=key,
-    model='dall-e-3',
-    size='1024x1024',
-    quality='standard',
-    n=1
+tool = TavilySearchResults(
+    key=tavily_key,
+    max_results=5,                      # 반환되는 최대 검색 결과 수(기본값: 5)
+    include_answer=False,               # 원본 질문(쿼리)에 대한 짧은 답변 포함 여부
+    include_raw_content=False,          # HTML 컨텐츠 여부
+    include_domains=['www.naver.com', 'namu.wiki'],
+    # exclude_domains=[]
 )
+answer = tool.invoke({'query': '농심 안성탕면'})
+print(answer)
 
-print('생성 시작')
-
-image_url = dalle.run(prompt)
-response = requests.get(image_url)
-image = Image.open(BytesIO(response.content))
-# file_name = datetime.now().strftime('%Y%m%d_%H%M%S') + '.png'
-image.save('b.png')
-
-
-
+for data in answer:
+    print(data['title'])
+    print(data['url'])
+    print(data['content'])
