@@ -20,4 +20,21 @@ search = TavilySearchResults(k=5)
 loader = PyMuPDFLoader('./data/SPRI_AI_Brief_2023년12월호_F.pdf')
 docs = loader.load()
 
-# 2.
+# 2.문서 분할
+text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
+split_document = text_splitter.split_documents(docs)
+
+# 3.임베딩 생성
+embeddings = OpenAIEmbeddings(
+    api_key=key,
+    model='text-embedding-3-small'
+)
+
+# 4. DB 생성 및 저장
+vectorstore = FAISS.from_documents(documents=split_document, embedding=embeddings)
+
+# 5.벡터스토어에 들어가서 검색해오는 검색기(Retriever) 생성
+retriever = vectorstore.as_retriever()
+
+answer = retriever.invoke('삼성전자가 개발한 생성형 AI이름?')
+print(answer)
