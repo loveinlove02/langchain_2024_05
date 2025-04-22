@@ -3,6 +3,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings
 from langchain.document_loaders import PyMuPDFLoader
 
+from langchain.tools.retriever import create_retriever_tool
 from langchain_community.tools.tavily_search import TavilySearchResults
 
 from dotenv import load_dotenv
@@ -36,5 +37,14 @@ vectorstore = FAISS.from_documents(documents=split_document, embedding=embedding
 # 5.벡터스토어에 들어가서 검색해오는 검색기(Retriever) 생성
 retriever = vectorstore.as_retriever()
 
-answer = retriever.invoke('삼성전자가 개발한 생성형 AI이름?')
-print(answer)
+retriever_tool = create_retriever_tool(
+    retriever,               # 리트리버
+    name='pdf_search',       # 도구의 이름
+    description='여기서 도구에 대한 설명....'
+)
+
+# answer = retriever.invoke('삼성전자가 개발한 생성형 AI이름?')
+# # print(answer)
+#
+# for data in answer:
+#     print(data)
