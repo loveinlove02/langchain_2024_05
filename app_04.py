@@ -1,23 +1,30 @@
-from langchain_community.tools.tavily_search import TavilySearchResults
 from dotenv import load_dotenv
 import os
 
 load_dotenv(verbose=True)
 key = os.getenv('OPENAI_API_KEY')
-tavily_key = os.getenv('TAVILY_API_KEY')
 
-tool = TavilySearchResults(
-    key=tavily_key,
-    max_results=5,                      # 반환되는 최대 검색 결과 수(기본값: 5)
-    include_answer=False,               # 원본 질문(쿼리)에 대한 짧은 답변 포함 여부
-    include_raw_content=False,          # HTML 컨텐츠 여부
-    include_domains=['www.naver.com', 'namu.wiki'],
-    # exclude_domains=[]
-)
-answer = tool.invoke({'query': '농심 안성탕면'})
-print(answer)
 
-for data in answer:
-    print(data['title'])
-    print(data['url'])
-    print(data['content'])
+from langchain.document_loaders import PyMuPDFLoader
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_community.vectorstores import FAISS
+from langchain_openai import OpenAIEmbeddings
+
+# 1단계: 문서 로드
+loader = PyMuPDFLoader('data/SPRI_AI_Brief_2023년12월호_F.pdf')
+docs = loader.load()
+
+# 2단계: 문서 분할
+text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
+split_documents = text_splitter.split_documents(docs)
+
+# 3단계: Embedding
+embeddings = OpenAIEmbeddings(api_key=key, model='text-embedding-3-small')
+
+# 4단계: DB 생성 및 저장
+vectore = FAISS.from_documents(documents=split_documents, embedding=embeddings)
+
+# 5단계: 검색기(retriever)
+retriever = vectore.as_retriever()
+
+retriever.invoke('삼성전자가 만든 생성형 AI')
