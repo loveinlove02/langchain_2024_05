@@ -72,5 +72,26 @@ prompt = ChatPromptTemplate.from_messages(                  # 프롬프트
 )
 
 
+from langchain.agents import create_tool_calling_agent
+
+agnet = create_tool_calling_agent(llm, tools, prompt)
+
+
+from langchain.agents import AgentExecutor
+
+agent_executor = AgentExecutor(
+    agent=agnet,
+    tools=tools,
+    verbose=False,
+    max_iterations=10, 
+    max_execution_time=10,
+    handle_parsing_errors=True
+)
+
+answer = agent_executor.invoke({'input': '2024년 프로야구 우승팀?'})
+answer
+
+
+
 
 
