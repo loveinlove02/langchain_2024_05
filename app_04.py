@@ -28,3 +28,49 @@ vectore = FAISS.from_documents(documents=split_documents, embedding=embeddings)
 retriever = vectore.as_retriever()
 
 retriever.invoke('삼성전자가 만든 생성형 AI')
+
+
+from langchain.tools.retriever import create_retriever_tool
+
+retriever_tool = create_retriever_tool(
+    retriever,
+    name='pdf_search',
+    description='use this tool to search information from PDF document'
+)
+
+from langchain_teddynote.tools.tavily import TavilySearch
+
+search = TavilySearch(
+    max_results=5, 
+    include_domains=['www.naver.com']
+)
+
+
+
+tools = [retriever_tool, search]
+
+from langchain_openai import ChatOpenAI
+from langchain_core.prompts import ChatPromptTemplate
+
+llm = ChatOpenAI(
+    api_key=key,
+    model='gpt-4o-mini'
+)
+
+prompt = ChatPromptTemplate.from_messages(                  # 프롬프트
+    [
+        (
+            'system',
+            'You are a helpful assistant. '
+            "Make sure to use the `pdf_search` tool for searching information from the PDF document. "
+            "If you can't find the information from the PDF document, use the `search` tool for searching information from the web.",
+        ),
+        ('placeholder', '{chat_history}'),
+        ('human', '{input}'),
+        ('placeholder', '{agent_scratchpad}'),
+    ]
+)
+
+
+
+
