@@ -59,3 +59,26 @@ search = TavilySearchResults(k=2)
 # 3.도구 목록
 tools = [retriever_tool, search]
 
+
+# ====================
+# Agent 생성
+# ====================
+
+llm = ChatOpenAI(
+    api_key=key,
+    model='gpt-4o-mini'
+)
+
+prompt = ChatPromptTemplate.from_messages(                 
+    [
+        (
+            'system',
+            'You are a helpful assistant. '
+            "Make sure to use the `pdf_search` tool for searching information from the PDF document. "
+            "If you can't find the information from the PDF document, use the `search` tool for searching information from the web.",
+        ),
+        ('placeholder', '{chat_history}'),
+        ('human', '{input}'),
+        ('placeholder', '{agent_scratchpad}'),
+    ]
+)
