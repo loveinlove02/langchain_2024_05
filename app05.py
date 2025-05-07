@@ -10,6 +10,9 @@ from langchain.agents import AgentExecutor
 from langchain_teddynote.messages import AgentStreamParser
 from langchain.tools.retriever import create_retriever_tool
 
+from langchain_community.chat_message_histories import ChatMessageHistory
+from langchain_core.runnables.history import RunnableWithMessageHistory
+
 from dotenv import load_dotenv
 import os
 
@@ -82,3 +85,50 @@ prompt = ChatPromptTemplate.from_messages(
         ('placeholder', '{agent_scratchpad}'),
     ]
 )
+
+
+agent = create_tool_calling_agent(llm, tools, prompt)
+
+# ====================
+# angent 실행기
+# ====================
+agent_executor = AgentExecutor(
+    agent=agent,                # 계획 생성 및 결정하는 Agent               
+    tools=tools,                # agent가 사용하는 도구
+    verbose=False,              # 중간단계 출력하기
+    max_iterations=10,          # 최대 반복 횟수
+    max_execution_time=10,      # 최대 실행 시간
+    handle_parsing_errors=True  # 에러 처리
+)
+
+
+store = {}                                  # 세션 기록 저장(딕셔너리)
+
+def get_session_history(session_ids):       # 세션 기록을 가져오는 함수       
+    if session_ids not in store:
+        store[session_ids] = ChatMessageHistory()
+    
+    return store[session_ids]
+
+
+# ====================
+# 대화내용을 기억하는 angent 실행기
+# ====================
+
+agent_with_chat_history = RunnableWithMessageHistory(
+    agent_executor,                     # agent 실행기
+    get_session_history,                # 세션 기록가져오는 함수
+    input_messages_key='input',         # 사용자 질문
+    history_messages_key='chat_history' # 대화 내용 기록
+)
+
+# 실행
+response = agent_with_chat_history.stream(
+    {'input': '삼성전자가 자체 개발한 생성형 AI에 대한 정보를 문서에서 검색해주세요.'},
+    config={'configurable' : {'session_id': 'abc123'}}
+)
+
+for step in response:
+    print(step)
+    print()
+
