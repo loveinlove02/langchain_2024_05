@@ -123,12 +123,17 @@ agent_with_chat_history = RunnableWithMessageHistory(
 )
 
 # 실행
+# response = agent_with_chat_history.stream(
+#     {'input': '삼성전자가 자체 개발한 생성형 AI에 대한 정보를 문서에서 검색해주세요.'},
+#     config={'configurable' : {'session_id': 'abc123'}}
+# )
+
 response = agent_with_chat_history.stream(
-    {'input': '삼성전자가 자체 개발한 생성형 AI에 대한 정보를 문서에서 검색해주세요.'},
+    {'input': '백종원 사건에 대해서 알려줘'},
     config={'configurable' : {'session_id': 'abc123'}}
 )
 
-for step in response:
-    print(step)
-    print()
+agent_stream_parser = AgentStreamParser()
 
+for step in response:
+    agent_stream_parser.process_agent_steps(step)
