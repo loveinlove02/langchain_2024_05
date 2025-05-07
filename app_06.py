@@ -35,4 +35,13 @@ tools = FileManagementToolkit(
     selected_tools=['read_file', 'file_delete', 'write_file', 'list_directory']     
 ).get_tools()
 
-print(tools)
+read_tool, delete_tool, write_tool, list_tool = tools
+
+# 파일 기록
+write_tool.invoke({'file_path':'example.txt', 'encoding':'urf-8', 'text': '파일쓰기 테스트'})
+print(list_tool.invoke({}))
+
+
+# 파일 삭제
+delete_tool.invoke({'file_path': 'example.txt'})
+print(list_tool.invoke({}))
