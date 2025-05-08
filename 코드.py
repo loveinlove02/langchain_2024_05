@@ -15,8 +15,13 @@ llm = ChatOpenAI(
 )
 
 # 2. prompt
-template = '{product}는 어느 회사에서 만든 제품인가요?'
-prompt = PromptTemplate.from_template(template)
+# template = '{product}는 어느 회사에서 만든 제품인가요?'
+# prompt = PromptTemplate.from_template(template)
+
+prompt = PromptTemplate(
+    template='{country1}과 {country2}의 수도는 각각 어디인가요?',
+    input_variables=['country1', 'country2']
+)
 
 # 3. 출력파서
 output_parser = StrOutputParser()
@@ -24,5 +29,5 @@ output_parser = StrOutputParser()
 # 실행기(chain)
 chain = prompt | llm | output_parser
 
-answer = chain.invoke({'product' : '겔럭시폰'})
+answer = chain.invoke({'country1' : '미국', 'country2': '일본'})
 print(answer)
