@@ -88,10 +88,18 @@ agent_with_chat_history = RunnableWithMessageHistory(
     history_messages_key='chat_history'
 )
 
+# result = agent_with_chat_history.stream(
+#     {
+#         'input': '최근 뉴스 5개를 검색하고, 각 뉴스의 제목을 파일명으로 하는 파일을 생성하고(.txt) '
+#         '파일의 뉴스 내용은 뉴스의 내용과 url을 추가하세요.'
+#     },
+#     config={'configurable' : {'session_id': 'abc123'}}
+# )
+
 result = agent_with_chat_history.stream(
     {
-        'input': '최근 뉴스 5개를 검색하고, 각 뉴스의 제목을 파일명으로 하는 파일을 생성하고(.txt) '
-        '파일의 뉴스 내용은 뉴스의 내용과 url을 추가하세요.'
+        'input': '이전에 생성한 파일 제목 맨 앞에 어울리는 emoji를 추가해서 파일 명을 변경하세요. '
+        '파일도 깔끔하게 변경하세요.'
     },
     config={'configurable' : {'session_id': 'abc123'}}
 )
