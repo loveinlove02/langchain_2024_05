@@ -96,10 +96,18 @@ agent_with_chat_history = RunnableWithMessageHistory(
 #     config={'configurable' : {'session_id': 'abc123'}}
 # )
 
+# result = agent_with_chat_history.stream(
+#     {
+#         'input': '이전에 생성한 파일 제목 맨 앞에 어울리는 emoji를 추가해서 파일 명을 변경하세요. '
+#         '파일도 깔끔하게 변경하세요.'
+#     },
+#     config={'configurable' : {'session_id': 'abc123'}}
+# )
+
 result = agent_with_chat_history.stream(
     {
-        'input': '이전에 생성한 파일 제목 맨 앞에 어울리는 emoji를 추가해서 파일 명을 변경하세요. '
-        '파일도 깔끔하게 변경하세요.'
+        'input': '이전에 생성한 모든 파일을 news 폴더를 생성한 후 해당 폴어에 모든 파일을 복사하세요. '
+        '내용도 동일하게 복사하세요.'
     },
     config={'configurable' : {'session_id': 'abc123'}}
 )
