@@ -17,3 +17,12 @@ import os
 load_dotenv(verbose=True)
 key = os.getenv('OPENAI_API_KEY')
 
+
+@tool
+def lastest_news(k: int = 5) -> List[Dict[str, str]]:
+    """Look up lastest news"""
+
+    print('구글 뉴스 검색 (최근 뉴스)')
+    news_tool = GoogleNews()
+    
+    return news_tool.search_latest(k=k)
