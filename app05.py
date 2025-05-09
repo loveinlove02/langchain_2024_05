@@ -2,7 +2,7 @@ from langchain.tools import tool
 from typing import List, Dict
 from langchain_teddynote.tools import GoogleNews
 from langchain_openai import ChatOpenAI
-from langchain_core.prompts import ChatMessagePromptTemplate
+from langchain_core.prompts import ChatPromptTemplate
 from langchain.agents import create_tool_calling_agent, AgentExecutor
 
 from langchain_teddynote.messages import AgentStreamParser
@@ -47,7 +47,7 @@ llm = ChatOpenAI(
     model='gpt-4o-mini'
 )
 
-prompt = ChatMessagePromptTemplate.format_messages(
+prompt = ChatPromptTemplate.from_messages(
     [
         (
             'system',
