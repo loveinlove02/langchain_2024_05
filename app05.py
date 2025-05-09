@@ -72,3 +72,31 @@ agent_executor = AgentExecutor(
     max_execution_time=10,  # 실행되는데 소요되는 최대 시간
     handle_parsing_errors=True
 )
+
+store = {}
+
+def get_session_history(session_ids):
+    if session_ids not in store:
+        store[session_ids] = ChatMessageHistory()
+    
+    return store[session_ids]
+
+agent_with_chat_history = RunnableWithMessageHistory(
+    agent_executor,
+    get_session_history,
+    input_messages_key='input',
+    history_messages_key='chat_history'
+)
+
+result = agent_with_chat_history.stream(
+    {
+        'input': '최근 뉴스 5개를 검색하고, 각 뉴스의 제목을 파일명으로 하는 파일을 생성하고(.txt) '
+        '파일의 뉴스 내용은 뉴스의 내용과 url을 추가하세요.'
+    },
+    config={'configurable' : {'session_id': 'abc123'}}
+)
+
+agnet_stream_parser = AgentStreamParser()
+
+for step in result:
+    agnet_stream_parser.process_agent_steps(step)
