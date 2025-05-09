@@ -60,3 +60,15 @@ prompt = ChatMessagePromptTemplate.format_messages(
         ('placeholder', '{agent_scratchpad}')
     ]
 )
+
+
+agent = create_tool_calling_agent(llm, tools, prompt)
+
+agent_executor = AgentExecutor(
+    agent=agent,            # 각 단계에서 계획을 생성하고 행동을 결정하는 agent
+    tools=tools,            # agent가 사용가능한 도구 리스트
+    verbose=False,          # 중간 단계 출력
+    max_iterations=10,      # 최대 10번까지 반복
+    max_execution_time=10,  # 실행되는데 소요되는 최대 시간
+    handle_parsing_errors=True
+)
