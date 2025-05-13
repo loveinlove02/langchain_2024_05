@@ -11,6 +11,13 @@ from langchain_community.vectorstores import FAISS
 from langchain_openai import OpenAIEmbeddings
 
 from langchain.tools.retriever import create_retriever_tool
+from langchain_community.tools.tavily_search import TavilySearchResults
+
+
+from langchain_openai import ChatOpenAI
+from langchain_core.prompts import ChatPromptTemplate
+
+from langchain.agents import create_tool_calling_agent
 
 
 # 1단계: 문서 로드
@@ -33,10 +40,42 @@ retriever = vectore.as_retriever()
 # answer = retriever.invoke('삼성전자가 만든 생성형 AI')
 # print(answer)
 
-# agent가 사용할 수 있는 검색 도구(문서 검색 도구)
+# agent가 사용할 수 있는 도구(문서 검색 도구)
 retriever_tool = create_retriever_tool(
     retriever,              # 도구
     name='pdf_search',      # 도구 이름
     description='use this tool to search information from PDF document'
 )
-print(retriever_tool)
+
+
+# agent가 사용할 수 있는 도구(웹 검색도구)
+search = TavilySearchResults(k=2)
+
+# 도구들을 리스트에 넣기
+tools = [retriever_tool, search]
+
+# llm
+llm = ChatOpenAI(
+    api_key=key,
+    model='gpt-4o-mini'
+)
+
+# 프롬프트
+prompt = ChatPromptTemplate.from_messages(                  # 프롬프트
+    [
+        (
+            'system',
+            'You are a helpful assistant. '
+            "Make sure to use the `pdf_search` tool for searching information from the PDF document. "
+            "If you can't find the information from the PDF document, use the `search` tool for searching information from the web.",
+        ),
+        ('placeholder', '{chat_history}'),
+        ('human', '{input}'),
+        ('placeholder', '{agent_scratchpad}'),
+    ]
+)
+
+
+# 도구를 실행 시킬수 있는 agent 만들기 
+agent = create_tool_calling_agent(llm, tools, prompt)
+print(agent)
