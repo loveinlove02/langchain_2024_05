@@ -18,7 +18,7 @@ from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 
 from langchain.agents import create_tool_calling_agent, AgentExecutor
-
+from langchain_teddynote.messages import AgentStreamParser
 
 # 1단계: 문서 로드
 loader = PyMuPDFLoader('./data/SPRI_AI_Brief_2023년12월호_F.pdf')
@@ -89,5 +89,17 @@ agent_executor = AgentExecutor(
     handle_parsing_errors=True
 )
 
-answer = agent_executor.invoke({'input': '2025년 대선'})
-print(answer)
+# 1. 실행방법
+# answer = agent_executor.invoke({'input': '2025년 대선'})
+# print(answer)
+
+# answer = agent_executor.invoke({'input': '삼성전자가 만든 생성형 AI이름을 문서에서 찾아줘.'})
+# print(answer['output'])
+
+# 2. 실행방법
+agent_stream_parser = AgentStreamParser()
+# answer = agent_executor.stream({'input': '2025년 대선'})
+answer = agent_executor.stream({'input': '삼성전자가 만든 생성형 AI이름을 문서에서 찾아줘.'})
+
+for step in answer:
+    agent_stream_parser.process_agent_steps(step)
