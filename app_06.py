@@ -17,7 +17,7 @@ from langchain_community.tools.tavily_search import TavilySearchResults
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 
-from langchain.agents import create_tool_calling_agent
+from langchain.agents import create_tool_calling_agent, AgentExecutor
 
 
 # 1단계: 문서 로드
@@ -78,4 +78,16 @@ prompt = ChatPromptTemplate.from_messages(                  # 프롬프트
 
 # 도구를 실행 시킬수 있는 agent 만들기 
 agent = create_tool_calling_agent(llm, tools, prompt)
-print(agent)
+
+# 위에서 만든 agent를 실행시키는 실행기
+agent_executor = AgentExecutor(
+    agent=agent,                # 에이전트
+    tools=tools,                # 사용가능한 도구들
+    verbose=False,              # 중간 단계 출력 안보이게
+    max_iterations=10,          # 최대 실행 횟수
+    max_execution_time=10,      # 실행되는데 소요되는 최대 시간
+    handle_parsing_errors=True
+)
+
+answer = agent_executor.invoke({'input': '2025년 대선'})
+print(answer)
