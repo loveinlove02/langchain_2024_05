@@ -94,3 +94,53 @@ prompt = ChatPromptTemplate.from_messages(                  # 프롬프트
         ('placeholder', '{agent_scratchpad}'),
     ]
 )
+
+# 에이전트
+agent = create_tool_calling_agent(llm, tools, prompt)
+
+# 에이전트 실행기
+agent_executor = AgentExecutor(
+    agent=agent,                    # 에이전트
+    tools=tools,                    # 도구
+    verbose=False,                  # 중간 과정
+    max_iterations=10,              # 최대 실행 횟수
+    max_execution_time=10,          # 최대 실행 시간
+    handle_parsing_errors=True      # 오류 해결
+)
+
+# 대화 내용을 기록할 메모리
+store = {}
+
+def get_session_history(session_ids):   # abc123
+    if session_ids not in store:
+        store[session_ids] = ChatMessageHistory()   # 메모리
+
+    return store[session_ids]
+
+
+agent_with_chat_history = RunnableWithMessageHistory(
+    agent_executor,                     # 에이전트 실행기
+    get_session_history,                # 메모리를 설정하는 함수
+    input_messages_key='input',         # 사용자 질문
+    history_messages_key='chat_history' # 메모리 변수
+)
+
+# 출력파서
+agent_stream_parser = AgentStreamParser()
+
+# 실행
+result = agent_with_chat_history.stream(
+    {
+        "input": "삼성전자가 개발한 `생성형 AI`와 관련된 유용한 정보들을 PDF 문서에서 찾아서 bullet point로 정리해주세요. "
+        "한글로 작성해주세요."
+        "다음으로는 `report.txt` 파일을 새롭게 생성하여 정리한 내용을 저장해주세요. \n\n"
+        "#작성방법\n"
+        "1. 발췌한 PDF 문서의 페이지 번호, 파일명을 기입하세요(예시: page 10, filename.pdf). \n"
+        "2. 정리된 내용을 bullet point로 작성하세요. \n"
+        "3. 작성이 완료되면 report.txt에 저장하세요."
+    },
+    config={"configurable": {"session_id": "abc123"}}
+)
+
+for step in result:
+    agent_stream_parser.process_agent_steps(step)
