@@ -25,7 +25,7 @@ import os
 load_dotenv(verbose=True)
 key = os.getenv('OPENAI_API_KEY')
 
-# ===== PDF 문서 검색 =====
+# ===== PDF 문서 검색 도구 =====
 # 단계 1: 문서 로드
 loader = PyMuPDFLoader('data/SPRI_AI_Brief_2023년12월호_F.pdf')
 docs = loader.load()
@@ -43,5 +43,7 @@ vectorstore = FAISS.from_documents(documents=split_documents, embedding=embeddin
 # 단계 5 : 검색기(retriever)
 retriever = vectorstore.as_retriever()
 
-answer = retriever.invoke('삼성전자가 만든 생성형 AI이름은?')
-print(answer)
+# 단계 6 : 도구로 만들기
+document_prompt = PromptTemplate.from_template(
+    "<document><content>{page_content}</content><page>{page}</page><filename>{filename}</filename></document>"
+)
