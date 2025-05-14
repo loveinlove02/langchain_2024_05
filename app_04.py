@@ -55,5 +55,42 @@ retriever_tool = create_retriever_tool(
     document_prompt=document_prompt
 )
 
-answer =  retriever_tool.invoke('삼성전자가 개할한 생성형 AI는?')
-print(answer)
+# ===== 웹 검색 도구 =====
+search = TavilySearchResults(k=2)
+
+# ===== 파일 관리 도구 =====
+if not os.path.exists('tmp'):
+    os.mkdir('tmp')
+
+working_directory = 'tmp'
+
+# 사용할 도구들을 가져온다
+file_tools = FileManagementToolkit(
+    root_dir=str(working_directory),
+    selected_tools=['write_file', 'read_file', 'list_directory']
+).get_tools()
+
+# 도구들을 리스에 모은다
+tools = file_tools + [retriever_tool, search]
+
+llm = ChatOpenAI(
+    api_key=key,
+    model='gpt-4o-mini'
+)
+
+prompt = ChatPromptTemplate.from_messages(                  # 프롬프트
+    [
+        (
+            'system',
+            'You are a helpful assistant. '
+            'You are a professional researcher. '
+            'You can use the pdf_search tool to search for information in the PDF file. '
+            'You can find further information by using search tool. '
+            'You can use image generation tool to generate image from text. '
+            'Finally, you can use file management tool to save your research result into files.'
+        ),
+        ('placeholder', '{chat_history}'),
+        ('human', '{input}'),
+        ('placeholder', '{agent_scratchpad}'),
+    ]
+)
