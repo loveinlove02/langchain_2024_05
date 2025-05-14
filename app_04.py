@@ -45,5 +45,15 @@ retriever = vectorstore.as_retriever()
 
 # 단계 6 : 도구로 만들기
 document_prompt = PromptTemplate.from_template(
-    "<document><content>{page_content}</content><page>{page}</page><filename>{filename}</filename></document>"
+    "<document><content>{page_content}</content><page>{page}</page><filename>{source}</filename></document>"
 )
+
+retriever_tool = create_retriever_tool(
+    retriever,              # 우리가 만든 검색기
+    name='pdf_search',      # 도구 이름을 지정
+    description='use this tool to search for information in the PDF file.',
+    document_prompt=document_prompt
+)
+
+answer =  retriever_tool.invoke('삼성전자가 개할한 생성형 AI는?')
+print(answer)
