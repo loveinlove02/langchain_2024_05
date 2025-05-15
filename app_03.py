@@ -31,7 +31,6 @@ vectorstore = FAISS.from_documents(documents=split_documents, embedding=embeddin
 # 5. 리트리버
 retriever = vectorstore.as_retriever()
 
-
 prompt = PromptTemplate.from_template(
     """Yor are an assistant for question-answering tasks.
     Use the following pieces of retrieved context to answer the question.
@@ -41,10 +40,26 @@ prompt = PromptTemplate.from_template(
     #Context:
     {context}
     
-    
     #Question:
     {question}
     
     #Answer:
     """
 )
+
+llm = ChatOpenAI(
+    api_key=key,
+    model='gpt-4o-mini'
+)
+
+output_parser = StrOutputParser()
+
+chain = (
+    {"context" : retriever, "question": RunnablePassthrough()}
+    | prompt
+    | llm
+    | output_parser
+)
+
+answer = chain.invoke('삼성전자가 개발한 생생형 AI이름?')
+print(answer)
