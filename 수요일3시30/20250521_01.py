@@ -77,14 +77,15 @@ llm = ChatOpenAI(
 )
 
 
-prompt = ChatPromptTemplate.from_messages(                 
+prompt = ChatPromptTemplate.from_messages(                  # 프롬프트
     [
         (
             'system',
             'You are a helpful assistant. '
-            'Yor are a professional researcher. '
+            'You are a professional researcher. '
             'You can use the pdf_search tool to search for information in the PDF file. '
             'You can find further information by using search tool. '
+            'You can use image generation tool to generate image from text. '
             'Finally, you can use file management tool to save your research result into files.'
         ),
         ('placeholder', '{chat_history}'),
@@ -129,16 +130,21 @@ agent_with_chat_history = RunnableWithMessageHistory(
 agent_stream_parser = AgentStreamParser()
 
 # 사용자 질문
+
 result = agent_with_chat_history.stream(
     {
-        'input': "삼성전자가 개발한 생성형 AI와 관련된 유용한 정보들을 PDF 문서에서 찾아서 bullet point로 정리해 주세요. "
-        "한글로 작성해주세요. "
-        "다음으로는 report.txt 파일을 새롭게 생성하여 정리한 내용을 저장해주세요.\n\n"
+        "input": "삼성전자가 개발한 `생성형 AI` 와 관련된 유용한 정보들을 `pdf_search` 도구를 사용해서 PDF 문서에서 찾아서 bullet point로 정리해 주세요. "
+        "한글로 작성해주세요."
+        "다음으로는 `report.md` 파일을 새롭게 생성하여 정리한 내용을 저장해주세요. \n\n"
         "#작성방법: \n"
-        "1. 발취한 PDF 문서의 페이지번호, 파일명을 기입하세요. (예시: page 10, filename.pdf) \n"
-        "2. 정리된 bullet point를 작성하세요. "
-        "3. 작성이 완료되면 report.txt에 저장하세요. \n"
-        "4. 마지막으로 저장된  report.txt 파일을 읽어서 출력해주세요. \n"
+        "1. markdown header 2 크기로 적절한 제목을 작성하세요. \n"
+        "2. 발췌한 PDF 문서의 페이지 번호, 파일명을 기입하세요(예시: page 10, filename.pdf). \n"
+        "3. 정리된 bullet point를 작성하세요. \n"
+        "4. 작성이 완료되면 파일을 `report.md` 에 저장하세요. \n"
+        "5. 마지막으로 저장한 `report.md` 파일을 읽어서 출력해 주세요. \n"
     },
-    config={'configurable': {'session_id': 'abc123'}}
+    config={"configurable": {"session_id": "abc123"}},
 )
+
+for step in result:
+    agent_stream_parser.process_agent_steps(step)
