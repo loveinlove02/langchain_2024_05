@@ -131,17 +131,33 @@ agent_stream_parser = AgentStreamParser()
 
 # 사용자 질문
 
+# result = agent_with_chat_history.stream(
+#     {
+#         "input": "삼성전자가 개발한 `생성형 AI` 와 관련된 유용한 정보들을 `pdf_search` 도구를 사용해서 PDF 문서에서 찾아서 bullet point로 정리해 주세요. "
+#         "한글로 작성해주세요."
+#         "다음으로는 `report.md` 파일을 새롭게 생성하여 정리한 내용을 저장해주세요. \n\n"
+#         "#작성방법: \n"
+#         "1. markdown header 2 크기로 적절한 제목을 작성하세요. \n"
+#         "2. 발췌한 PDF 문서의 페이지 번호, 파일명을 기입하세요(예시: page 10, filename.pdf). \n"
+#         "3. 정리된 bullet point를 작성하세요. \n"
+#         "4. 작성이 완료되면 파일을 `report.md` 에 저장하세요. \n"
+#         "5. 마지막으로 저장한 `report.md` 파일을 읽어서 출력해 주세요. \n"
+#     },
+#     config={"configurable": {"session_id": "abc123"}},
+# )
+
+# for step in result:
+#     agent_stream_parser.process_agent_steps(step)
+
 result = agent_with_chat_history.stream(
     {
-        "input": "삼성전자가 개발한 `생성형 AI` 와 관련된 유용한 정보들을 `pdf_search` 도구를 사용해서 PDF 문서에서 찾아서 bullet point로 정리해 주세요. "
-        "한글로 작성해주세요."
-        "다음으로는 `report.md` 파일을 새롭게 생성하여 정리한 내용을 저장해주세요. \n\n"
-        "#작성방법: \n"
-        "1. markdown header 2 크기로 적절한 제목을 작성하세요. \n"
-        "2. 발췌한 PDF 문서의 페이지 번호, 파일명을 기입하세요(예시: page 10, filename.pdf). \n"
-        "3. 정리된 bullet point를 작성하세요. \n"
-        "4. 작성이 완료되면 파일을 `report.md` 에 저장하세요. \n"
-        "5. 마지막으로 저장한 `report.md` 파일을 읽어서 출력해 주세요. \n"
+        "input": "report.md 파일을 열어서 내용을 출력하세요. "
+        "출력된 내용을 바탕으로, 전문적인 수준의 보고서를 작성하세요. "
+        "보고서는 총 3개의 섹션으로 구성되어야 합니다.\n"
+        "1. 개요 : 보고서 abstract를 300자 내외로 작성하세요. \n"
+        "2. 핵심내용 : 보고서의 핵심 내요을 작성하세요. "
+        "3. 최종결론 : 보고서의 최종결론을 작성하세요. 출처(파일이름, url)등을 표시하세요."
+        "마지막으로 작성된 결과물을 report2.md 파일에 저장하세요."
     },
     config={"configurable": {"session_id": "abc123"}},
 )
