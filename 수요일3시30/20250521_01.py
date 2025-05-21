@@ -17,3 +17,39 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_teddynote.messages import AgentStreamParser
 from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_core.runnables.history import RunnableWithMessageHistory
+
+from dotenv import load_dotenv
+import os
+
+load_dotenv(verbose=True)
+key = os.getenv('OPENAI_API_KEY')
+
+
+# 문서 검색 도구
+# ====================
+# 1. 문서 로드
+loader = PyMuPDFLoader('data/SPRI_AI_Brief_2023년12월호_F.pdf')
+docs = loader.load()
+
+# 2. 문서 자르기
+text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
+split_documents = text_splitter.split_documents(docs)
+
+# 3. 임베딩 생성
+embeddings = OpenAIEmbeddings(api_key=key, model='text-embedding-3-small')
+
+# 4. 데이터베이스 생성 및 잘라 놓은 문서를 임베딩을 가지고 등록
+vectorstore = FAISS.from_documents(documents=split_documents, embedding=embeddings)
+
+# 5. 검색기(retriever)
+retriever = vectorstore.as_retriever()
+print(retriever.invoke('삼성전자가 만든 생성형 AI'))
+
+
+# 웹 검색 도구
+# ====================
+
+# 파일 관리 도구
+# ====================
+
+
