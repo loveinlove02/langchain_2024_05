@@ -117,3 +117,28 @@ def get_session_history(session_ids):
     return store[session_ids]
 
 
+
+agent_with_chat_history = RunnableWithMessageHistory(
+    agent_executor, 
+    get_session_history,
+    input_messages_key='input',
+    history_messages_key='chat_history'
+)
+
+# 출력 파서
+agent_stream_parser = AgentStreamParser()
+
+# 사용자 질문
+result = agent_with_chat_history.stream(
+    {
+        'input': "삼성전자가 개발한 생성형 AI와 관련된 유용한 정보들을 PDF 문서에서 찾아서 bullet point로 정리해 주세요. "
+        "한글로 작성해주세요. "
+        "다음으로는 report.txt 파일을 새롭게 생성하여 정리한 내용을 저장해주세요.\n\n"
+        "#작성방법: \n"
+        "1. 발취한 PDF 문서의 페이지번호, 파일명을 기입하세요. (예시: page 10, filename.pdf) \n"
+        "2. 정리된 bullet point를 작성하세요. "
+        "3. 작성이 완료되면 report.txt에 저장하세요. \n"
+        "4. 마지막으로 저장된  report.txt 파일을 읽어서 출력해주세요. \n"
+    },
+    config={'configurable': {'session_id': 'abc123'}}
+)
