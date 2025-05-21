@@ -49,6 +49,14 @@ document_prompt = PromptTemplate.from_template(
     "<document><content>{page_content}</content><page>{page}</page><filename>{source}</filename></document>"
 )
 
+retriever_tool = create_retriever_tool(
+    retriever,
+    name='pdf_search',
+    description='use this tool to search for information in the PDF file',
+    document_prompt=document_prompt
+)
+
+print(retriever_tool.invoke('삼성전자가 생성한 AI 이름?'))
 
 # 웹 검색 도구
 # ====================
