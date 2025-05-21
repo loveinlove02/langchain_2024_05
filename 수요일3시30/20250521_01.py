@@ -56,12 +56,23 @@ retriever_tool = create_retriever_tool(
     document_prompt=document_prompt
 )
 
-print(retriever_tool.invoke('삼성전자가 생성한 AI 이름?'))
 
 # 웹 검색 도구
 # ====================
+search = TavilySearchResults(k=2)
 
 # 파일 관리 도구
 # ====================
+if not os.path.exists('temp'):
+    os.makedirs('temp')
 
+working_directory = 'temp'              # 작업 디렉토리(폴더)
+file_tools = FileManagementToolkit(root_dir=str(working_directory),
+                                   selected_tools=['write_file','read_file', 'list_directory'])
+tools = file_tools.get_tools()
 
+tools.append(search)
+
+for tool in tools:
+    print(tool.name, tool.description)
+    print()
