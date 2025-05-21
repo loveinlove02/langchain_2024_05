@@ -71,8 +71,25 @@ file_tools = FileManagementToolkit(root_dir=str(working_directory),
                                    selected_tools=['write_file','read_file', 'list_directory'])
 tools = file_tools.get_tools()
 
-tools.append(search)
+llm = ChatOpenAI(
+    api_key=key,
+    model='gpt-4o-mini'
+)
 
-for tool in tools:
-    print(tool.name, tool.description)
-    print()
+
+prompt = ChatPromptTemplate.from_messages(                 
+    [
+        (
+            'system',
+            'You are a helpful assistant. '
+            'Yor are a professional researcher. '
+            'You can use the pdf_search tool to search for information in the PDF file. '
+            'You can find further information by using search tool. '
+            'You can use image generation tool to generate image from text. '
+            'Finally, you can use file management tool to save your research result into files.'
+        ),
+        ('placeholder', '{chat_history}'),
+        ('human', '{input}'),
+        ('placeholder', '{agent_scratchpad}'),
+    ]
+)
