@@ -43,7 +43,11 @@ vectorstore = FAISS.from_documents(documents=split_documents, embedding=embeddin
 
 # 5. 검색기(retriever)
 retriever = vectorstore.as_retriever()
-print(retriever.invoke('삼성전자가 만든 생성형 AI'))
+
+# 6. 검색 도구로 만들기
+document_prompt = PromptTemplate.from_template(                         
+    "<document><content>{page_content}</content><page>{page}</page><filename>{source}</filename></document>"
+)
 
 
 # 웹 검색 도구
