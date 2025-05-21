@@ -85,7 +85,6 @@ prompt = ChatPromptTemplate.from_messages(
             'Yor are a professional researcher. '
             'You can use the pdf_search tool to search for information in the PDF file. '
             'You can find further information by using search tool. '
-            'You can use image generation tool to generate image from text. '
             'Finally, you can use file management tool to save your research result into files.'
         ),
         ('placeholder', '{chat_history}'),
@@ -93,3 +92,28 @@ prompt = ChatPromptTemplate.from_messages(
         ('placeholder', '{agent_scratchpad}'),
     ]
 )
+
+# 에이전트
+agent = create_tool_calling_agent(llm, tools, prompt)
+
+# 에이전트 실행기
+agent_executor = AgentExecutor(
+    agent=agent,
+    tools=tools,
+    verbose=False, 
+    max_iterations=10, 
+    max_execution_time=10,
+    handle_parsing_errors=True
+)
+
+# 채팅을 기록
+store = {}
+
+def get_session_history(session_ids):
+    if session_ids not in store:
+        store[session_ids] = ChatMessageHistory()
+    
+
+    return store[session_ids]
+
+
