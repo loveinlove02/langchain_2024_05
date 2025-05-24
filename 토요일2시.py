@@ -95,6 +95,21 @@ def create_chain(retriever):
         #Answer:"""
     )
 
+    llm = ChatOpenAI(
+        api_key=key,
+        model='gpt-4o-mini'
+    )
+
+    chain = (
+        {'context': retriever, 'question': RunnablePassthrough()}
+        | prompt
+        | llm
+        | StrOutputParser()
+    )
+
+    return chain
+
 if upload_file:
     retriever = embed_file(upload_file)
     chain = create_chain(retriever)
+    st.session_state['chain'] = chain
