@@ -51,8 +51,14 @@ def add_message(role, message):
         ChatMessage(role=role, content=message)
     )
 
+@st.cache_resource(show_spinner='업로드 한 파일을 처리중...')
 def embed_file(file):
-    pass
+    file_content = file.read()
+    file_path = f'./.cache/files/{file.name}'
+
+    with open(file_path, 'wb') as f:
+        f.write(file_content)
+
 
 if upload_file:
     retriever = embed_file(upload_file)
