@@ -59,6 +59,25 @@ def embed_file(file):
     with open(file_path, 'wb') as f:
         f.write(file_content)
 
+    # 1단계 : 문서 불러 오기
+    loader = PyMuPDFLoader(file_path)
+    docs = loader.load()
+
+    # 2단계 : 문서 자르기
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=50)
+    split_documents = text_splitter.split_documents(docs)
+
+    # 3단계 : 임베딩 생성
+    embeddings = OpenAIEmbeddings(api_key=key, model='text-embedding-3-small')
+
+    # 4단계 : DB 생성 및 저장
+    vectorstore = FAISS.from_documents(documents=split_documents, embedding=embeddings)
+
+    # 5단계 : 검색기
+    retriever = vectorstore.as_retriever()
+
+    return retriever
+
 
 if upload_file:
     retriever = embed_file(upload_file)
