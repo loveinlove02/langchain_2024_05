@@ -9,7 +9,7 @@ from langchain_openai import ChatOpenAI
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.messages import ChatMessage
-from langchain_teddynote.prompts import load_prompt
+from langchain_core.prompts import PromptTemplate
 
 from dotenv import load_dotenv
 import os
@@ -79,5 +79,22 @@ def embed_file(file):
     return retriever
 
 
+def create_chain(retriever):
+    prompt = PromptTemplate.from_template(
+        """You are an assistant for question-answering tasks. 
+        Use the following pieces of retrieved context to answer the question. 
+        If you don't know the answer, just say you don't know.
+        Answer in Korean.
+
+        #Context:
+        {context}
+
+        #Question:
+        {question}
+
+        #Answer:"""
+    )
+
 if upload_file:
     retriever = embed_file(upload_file)
+    chain = create_chain(retriever)
