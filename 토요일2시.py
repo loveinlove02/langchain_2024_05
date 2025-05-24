@@ -113,3 +113,30 @@ if upload_file:
     retriever = embed_file(upload_file)
     chain = create_chain(retriever)
     st.session_state['chain'] = chain
+
+
+print_message()
+
+user_input = st.chat_input('무엇을 도와드릴까요?')
+
+if user_input:
+
+    chain = st.session_state['chain']
+
+    if chain is not None:
+        with st.chat_message('user'):
+            st.write(user_input)
+
+        response = chain.stream(user_input)
+
+        with st.chat_message('assistant'):
+            container = st.empty()
+
+            answer = ''
+
+            for token in response:
+                answer += token
+                container.markdown(answer)
+
+        add_message('user', user_input)
+        add_message('assistant', answer)
