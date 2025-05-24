@@ -39,3 +39,21 @@ with st.sidebar:
     clear_btn = st.button('대화 다시')
     upload_file = st.file_uploader('파일 업로드', type=['pdf'])
 
+
+def print_message():
+    for chat_message in st.session_state['messages']:
+        with st.chat_message(chat_message.role):
+            st.write(chat_message.content)
+
+
+def add_message(role, message):
+    st.session_state['messages'].append(
+        ChatMessage(role=role, content=message)
+    )
+
+
+add_message('user', '안녕?')
+add_message('assistant', '무엇을 도와드릴까요?')
+
+
+print_message()
