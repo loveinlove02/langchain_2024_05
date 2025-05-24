@@ -51,9 +51,8 @@ def add_message(role, message):
         ChatMessage(role=role, content=message)
     )
 
+def embed_file(file):
+    pass
 
-add_message('user', '안녕?')
-add_message('assistant', '무엇을 도와드릴까요?')
-
-
-print_message()
+if upload_file:
+    retriever = embed_file(upload_file)
