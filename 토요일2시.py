@@ -11,17 +11,14 @@ import os
 load_dotenv(verbose=True)
 key = os.getenv('OPENAI_API_KEY')
 
-def print_and_execute(code, debug=True):
+def print_and_execute(code):
     python_tool = PythonAstREPLTool()
-
-    if debug:
-        print('코드:')
-        print(code)
+    print('코드:')
+    print(code)
 
     return python_tool.invoke(code)
 
-
-# 1. 프롬프트
+# 1.프롬프트
 prompt = ChatPromptTemplate.from_messages(
     [
         (
@@ -33,18 +30,10 @@ prompt = ChatPromptTemplate.from_messages(
     ]
 )
 
-# 2. llm
-llm = ChatOpenAI(
-    api_key=key,
-    model='gpt-4o-mini',
-    temperature=0
+'''
+(
+    'system',
+    'You are Raymond Hetting, an expert python programmer, well versed in meta-programming and elegant, concise and short but well documented code. You follow the PEP8 style guide. '
+    'Return only the code, no intro, no explanation, no chatty, no markdown, no code block, no nothing. Just the code.',
 )
-# 3. 출력파서(str)
-output_parser = StrOutputParser()
-
-# 실행기 (chain)
-chain = prompt | llm | output_parser | RunnableLambda(print_and_execute)
-
-# 실행
-answer = chain.invoke('로또 번호를 생성하는 코드를 작성해주세요')
-print(answer)
+'''
