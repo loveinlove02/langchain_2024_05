@@ -2,6 +2,9 @@ from langchain.tools import tool
 from typing import List, Dict
 from langchain_teddynote.tools import GoogleNews
 
+from langchain_openai import ChatOpenAI
+from langchain_core.output_parsers.openai_tools import JsonOutputToolsParser
+
 from dotenv import load_dotenv
 import os
 
@@ -30,5 +33,31 @@ def search_keyword(query: str) -> List[Dict[str, str]]:
     return news_tool.search_by_keyword(keyword=query, k=2)
 
 
-res = search_keyword.invoke({'query': '김민석 의원'})
-print(res)
+# 도구 목록 리스트
+tools = [add_numbers, multiply_numbers, search_keyword]
+
+# llm
+llm = ChatOpenAI(
+    api_key=key,
+    model='gpt-4o-mini',
+    temperature=0
+)
+
+# 도구를 가진 llm
+llm_with_tools = llm.bind_tools(tools)
+
+# chain
+chain = llm_with_tools | JsonOutputToolsParser(tools=tools)
+tool_call_result = chain.invoke('이스라엘 공격')
+
+print(tool_call_result)
+# [{'args': {'query': '이스라엘 공격'}, 'type': 'search_keyword'}]
+
+print(tool_call_result[0])
+# {'args': {'query': '이스라엘 공격'}, 'type': 'search_keyword'}
+
+print(tool_call_result[0]['args'])
+# {'query': '이스라엘 공격'}
+
+print(tool_call_result[0]['type'])
+# search_keyword
