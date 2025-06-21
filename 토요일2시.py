@@ -8,6 +8,9 @@ from typing import List, Dict
 from langchain.agents import tool
 from langchain_teddynote.tools import GoogleNews
 
+from langchain_teddynote.messages import AgentStreamParser
+from langchain_teddynote.messages import AgentCallbacks
+
 from dotenv import load_dotenv
 import os
 
@@ -67,9 +70,32 @@ agent_executor = AgentExecutor(
     handle_parsing_errors=True
 )
 
-# answer = agent_executor.invoke({'input': '대한미국의 수도는?'})
-answer = agent_executor.invoke({'input': '이란 핵포기'})
-print(answer)
+def tool_callback(tool) -> None:
+    print(f'===== 도구 호출 =====')
+    print(f'사용한 도구 : {tool.get("tool")}')
+    print(f'====================')
+
+def observation_callback(observation) -> None:
+    print(f'===== 관찰 내용 =====')
+    print(f'관찰 내용: {observation.get("observation")[0]}')
+    print(f'====================')
 
 
+def result_callback(result: str) -> None:
+    print(f'===== 최종 결과 =====')
+    print(result)
+    print(f'====================')
 
+
+agent_callbacks = AgentCallbacks(
+    tool_callback=tool_callback,
+    observation_callback=observation_callback,
+    result_callback=result_callback
+)
+
+agent_stream_parser = AgentStreamParser(agent_callbacks)
+
+result = agent_executor.stream({'input': 'AI 관련 뉴스를 검색해 주세요.'})
+
+for step in result:
+    agent_stream_parser.process_agent_steps(step)
