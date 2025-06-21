@@ -14,24 +14,62 @@ import os
 load_dotenv(verbose=True)
 key = os.getenv('OPENAI_API_KEY')
 
-
 @tool
 def add_numbers(a: int, b: int) -> int:
     """Add two numbers"""
-
     return a+b
 
 @tool
 def multiply_numbers(a: int, b: int) -> int:
     """Multiply two numbers"""
-
     return a*b
 
 @tool
 def search_keyword(query: str) -> List[Dict[str, str]]:
-    """Look up new by keyword"""
+    """Look up news by keyword"""
 
     print(f'검색어: {query}')
     news_tool = GoogleNews()
 
     return news_tool.search_by_keyword(keyword=query, k=2)
+
+tools = [add_numbers, multiply_numbers, search_keyword]
+
+prompt = ChatPromptTemplate.from_messages(
+    [
+        (
+            'system',
+            'You are a helpful assistant. '
+            'Make sure to use the `search_news` tool for searching keyword related news.' 
+            'Use the `add_numbers` tool to calculate the addition of two numbers.'
+            'Use the `multiply_numbers` tool to calculate the multiplication of two numbers.'
+        ),
+        ('placeholder', '{chat_history}'),
+        ('human', '{input}'),
+        ('placeholder', '{agent_scratchpad}'),
+    ]
+)
+
+llm = ChatOpenAI(
+    api_key=key,
+    model='gpt-4o-mini'
+)
+
+agent = create_tool_calling_agent(llm, tools, prompt)
+
+# agent 실행기
+agent_executor = AgentExecutor(
+    agent=agent,        # agent
+    tools=tools,        # 도구
+    verbose=False,      # 중간 단계 결과 안보이게
+    max_iterations=10,  # 반복 10번
+    max_execution_time=10,
+    handle_parsing_errors=True
+)
+
+# answer = agent_executor.invoke({'input': '대한미국의 수도는?'})
+answer = agent_executor.invoke({'input': '이란 핵포기'})
+print(answer)
+
+
+
