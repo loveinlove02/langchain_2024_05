@@ -26,5 +26,16 @@ async def read_item(request: Request, id: str, q: str | None = None):
         context={"id": id, "q": q, "item_dict": item_dict}
     )
 
+# http://127.0.0.1:8002/item_gubun/?gubun=admin
+@app.get("/item_gubun", response_class=HTMLResponse)
+async def read_item_by_gubn(request: Request, gubun: str):
+    item = Item(name='test_item02', price=1000)
+
+    return templates.TemplateResponse(
+        request=request, 
+        name="item_gubun.html",
+        context={"gubun": gubun, "item": item}
+    )
+
 
 # uvicorn app_06:app --port=8002 --reload 
