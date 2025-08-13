@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    {% if gubun == "admin" %}
+    <p>이것은 admin item 입니다.</p>
+    {% else %}
+    <p>이것은 일반용 item 입니다.</p>
+    {% endif %}
+    <br>
+    <h5>{{ item }}</h5>
+</body>
+</html>
